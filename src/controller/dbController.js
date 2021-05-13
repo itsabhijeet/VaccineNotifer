@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import { UserSchema } from '../models/vnModel';
 import cron from 'node-cron';
 import axios from 'axios';
+import { sendEmail } from './mailController';
 
 const User = mongoose.model('User', UserSchema);
 
@@ -42,11 +43,11 @@ export const notifyJob = cron.schedule('*/1 * * * *', () => {
             Array(7).fill(7).forEach(() => {
                     date.setDate(date.getDate() + 1);
                     const formattedDate = `${date.getDate()}-${date.getMonth()+1}-${date.getFullYear()}`;
-                    urls.push(`https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/findByPin?pincode=${pin}&date=${formattedDate}`);               
+                    urls.push({ url : `https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/findByPin?pincode=${pin}&date=${formattedDate}`, mail: email, date: formattedDate });               
             })
         });
         console.log({urls});
-        urls.forEach( (url) => {
+        urls.forEach( ({ url, mail, date }) => {
             console.log("Here");
             
            axios.get(url, {
@@ -58,6 +59,12 @@ export const notifyJob = cron.schedule('*/1 * * * *', () => {
                 })
                     .then((response) => {
                         console.log(response.data);
+                        const { data: { sessions } } = response;
+                        
+                        const slotsFor18Plus = sessions.filter(({ min_age_limit}) => min_age_limit === 18);
+                        if(slotsFor18Plus.length) {     
+                            sendEmail(mail, date);  //Send mail to use when slot is ther for 18plus
+                        };
                     })
                     .catch((error) => console.log(error));      
 
