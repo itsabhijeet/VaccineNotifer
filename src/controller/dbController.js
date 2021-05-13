@@ -2,8 +2,8 @@ import axios from 'axios';
 import mongoose from 'mongoose';
 import cron from 'node-cron';
 
-import { UserSchema } from '../models/vnModel';
-import { sendEmail } from './mailController';
+import { UserSchema } from '../models/VNmodel';
+import { sendEmail } from './MailController';
 
 const User = mongoose.model('User', UserSchema);
 

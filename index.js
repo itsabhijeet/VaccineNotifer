@@ -3,7 +3,7 @@ import bodyParser from 'body-parser';
 import express from 'express';
 import mongoose from 'mongoose';
 
-import { notifyJob } from './src/controller/dbController';
+import { notifyJob } from './src/controller/DbController';
 import routes from './src/routes/Routes';
 
 const app = express();
