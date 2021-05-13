@@ -1,7 +1,8 @@
-import mongoose from 'mongoose';
-import { UserSchema } from '../models/vnModel';
-import cron from 'node-cron';
 import axios from 'axios';
+import mongoose from 'mongoose';
+import cron from 'node-cron';
+
+import { UserSchema } from '../models/vnModel';
 import { sendEmail } from './mailController';
 
 const User = mongoose.model('User', UserSchema);
@@ -38,7 +39,7 @@ export const notifyJob = cron.schedule('*/1 * * * *', () => {
         // For every user check availablity for next few days
         let date = new Date();
         let urls = [];
-        user.forEach(({ mobile, email, pinCode: pin }) => {
+        user.forEach(({ email, pinCode: pin }) => {
 
             Array(7).fill(7).forEach(() => {
                     date.setDate(date.getDate() + 1);
@@ -46,10 +47,9 @@ export const notifyJob = cron.schedule('*/1 * * * *', () => {
                     urls.push({ url : `https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/findByPin?pincode=${pin}&date=${formattedDate}`, mail: email, date: formattedDate });               
             })
         });
-        console.log({urls});
+        // console.log({urls});
         urls.forEach( ({ url, mail, date }) => {
-            console.log("Here");
-            
+               
            axios.get(url, {
                     headers: {
                         'Accept-Language': 'hi_IN',

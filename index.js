@@ -1,9 +1,10 @@
 
-import express from 'express';
-import routes from './src/routes/Routes';
-import mongoose from 'mongoose';
 import bodyParser from 'body-parser';
+import express from 'express';
+import mongoose from 'mongoose';
+
 import { notifyJob } from './src/controller/dbController';
+import routes from './src/routes/Routes';
 
 const app = express();
 const PORT = 4000;

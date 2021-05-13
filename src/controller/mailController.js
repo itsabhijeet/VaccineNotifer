@@ -1,4 +1,5 @@
-import nodemailer, { createTransport } from 'nodemailer';
+import { createTransport } from 'nodemailer';
+
 import { MAIL } from '../MailConfig';
 
 const transporter = createTransport({
