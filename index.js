@@ -3,6 +3,7 @@ import express from 'express';
 import routes from './src/routes/Routes';
 import mongoose from 'mongoose';
 import bodyParser from 'body-parser';
+import { notifyJob } from './src/controller/dbController';
 
 const app = express();
 const PORT = 4000;
@@ -28,4 +29,4 @@ app.get('/', (req, res) => {
 
 app.listen(PORT, () => console.log(`Server running on ${PORT}`));
 
-        
+notifyJob;

@@ -1,5 +1,7 @@
 import mongoose from 'mongoose';
 import { UserSchema } from '../models/vnModel';
+import cron from 'node-cron';
+import axios from 'axios';
 
 const User = mongoose.model('User', UserSchema);
 
@@ -25,3 +27,39 @@ export const getUsers = (req,res) => {
         res.json(user);
     });
 }
+
+export const notifyJob = cron.schedule('*/1 * * * *', () => {
+    User.find({}, (err, user) => {
+        if(err) {
+            console.log(err);
+        }
+        console.log(user);
+        // For every user check availablity for next few days
+        let date = new Date();
+        let urls = [];
+        user.forEach(({ mobile, email, pinCode: pin }) => {
+
+            Array(7).fill(7).forEach(() => {
+                    date.setDate(date.getDate() + 1);
+                    const formattedDate = `${date.getDate()}-${date.getMonth()+1}-${date.getFullYear()}`;
+                    urls.push(`https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/findByPin?pincode=${pin}&date=${formattedDate}`);               
+            })
+        });
+        console.log({urls});
+        urls.forEach( (url) => {
+            console.log("Here");
+            
+           axios.get(url, {
+                    headers: {
+                        'Accept-Language': 'hi_IN',
+                        'accept': 'application/json',
+                        'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36'
+                    }
+                })
+                    .then((response) => {
+                        console.log(response.data);
+                    })
+                    .catch((error) => console.log(error));      
+
+    });
+})})
