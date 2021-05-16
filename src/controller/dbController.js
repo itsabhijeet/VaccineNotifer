@@ -58,11 +58,12 @@ export const notifyJob = cron.schedule('*/1 * * * *', () => {
                     }
                 })
                     .then((response) => {
-                        console.log(response.data);
+                        
                         const { data: { sessions } } = response;
                         
                         const slotsFor18Plus = sessions.filter(({ min_age_limit}) => min_age_limit === 18);
-                        if(slotsFor18Plus.length) {     
+                        if(slotsFor18Plus.length) { 
+                            console.log(response.data);    
                             sendEmail(mail, date);  //Send mail to use when slot is ther for 18plus
                         };
                     })
