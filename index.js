@@ -22,8 +22,12 @@ mongoose.connect('mongodb://localhost/VNdb', {
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 
+export const map = new Map();
 
 setInterval(notifyJob, 60000);
+setInterval(() => {
+    map.clear();
+  }, 60*60*1000);
 
 routes(app);
 

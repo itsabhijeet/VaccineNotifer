@@ -44,7 +44,7 @@ export const notifyJob = () => {
         });
 
         urls.forEach( ({ url, mail, date }) => {
-               
+        //console.log(url);
            setTimeout(() =>
             axios.get(url, {
                 headers: {
@@ -67,7 +67,7 @@ export const notifyJob = () => {
                            // sendEmail(mail, slotsFor18Plus, name, pincode);  //Send mail to use when slot is ther for 18plus
                            const [firstAvailableSession] = slotsFor18Plus; 
                            slotList.push({
-                                name, pincode, date: firstAvailableSession.date
+                                name, pincode, date: firstAvailableSession.date, id: firstAvailableSession.session_id
                             })
                         };
                      });
@@ -76,7 +76,8 @@ export const notifyJob = () => {
                          sendEmail(mail, slotList);
                          console.log({slotList});
                      }
-
+                     
+                     //console.log(mail);
 
                 })
                 .catch((error) => console.log(error)) 
