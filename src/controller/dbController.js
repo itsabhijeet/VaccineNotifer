@@ -1,6 +1,5 @@
 import axios from 'axios';
 import mongoose from 'mongoose';
-import cron from 'node-cron';
 
 import { UserSchema } from '../models/VNmodel';
 import { sendEmail } from './MailController';
@@ -30,44 +29,61 @@ export const getUsers = (req,res) => {
     });
 }
 
-export const notifyJob = cron.schedule('*/1 * * * *', () => {
+export const notifyJob = () => {
     User.find({}, (err, user) => {
         if(err) {
             console.log(err);
         }
-        console.log(user);
         // For every user check availablity for next few days
-        let date = new Date();
+        
         let urls = [];
-        user.forEach(({ email, pinCode: pin }) => {
-
-            Array(7).fill(7).forEach(() => {
-                    date.setDate(date.getDate() + 1);
-                    const formattedDate = `${date.getDate()}-${date.getMonth()+1}-${date.getFullYear()}`;
-                    urls.push({ url : `https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/findByPin?pincode=${pin}&date=${formattedDate}`, mail: email, date: formattedDate });               
-            })
+        user.forEach(({ email, district }) => {
+            const date = new Date();
+            const formattedDate = `${date.getDate()}-${date.getMonth()+1}-${date.getFullYear()}`;
+            urls.push({ url : `https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/calendarByDistrict?district_id=${district}&date=${formattedDate}`, mail: email, date: formattedDate });               
         });
-        // console.log({urls});
+
         urls.forEach( ({ url, mail, date }) => {
                
-           axios.get(url, {
-                    headers: {
-                        'Accept-Language': 'hi_IN',
-                        'accept': 'application/json',
-                        'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36'
-                    }
-                })
-                    .then((response) => {
-                        
-                        const { data: { sessions } } = response;
-                        
-                        const slotsFor18Plus = sessions.filter(({ min_age_limit}) => min_age_limit === 18);
+           setTimeout(() =>
+            axios.get(url, {
+                headers: {
+                    'accept': 'application/json',
+                    "Accept-Language": "en_US",
+                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36 Edg/90.0.818.51"
+                }
+            })
+                .then((response) => {
+                    
+                     const { data: { centers } } = response;
+                     const slotList = [];
+                     centers.forEach((center) => {
+
+                        const { sessions, name, pincode } = center; 
+                        const slotsFor18Plus = sessions.filter(({ min_age_limit, available_capacity_dose1}) => min_age_limit === 18 && available_capacity_dose1 > 0);
+                    
                         if(slotsFor18Plus.length) { 
-                            console.log(response.data);    
-                            sendEmail(mail, date);  //Send mail to use when slot is ther for 18plus
+                            //console.log(response.data);    
+                           // sendEmail(mail, slotsFor18Plus, name, pincode);  //Send mail to use when slot is ther for 18plus
+                           const [firstAvailableSession] = slotsFor18Plus; 
+                           slotList.push({
+                                name, pincode, date: firstAvailableSession.date
+                            })
                         };
-                    })
-                    .catch((error) => console.log(error));      
+                     });
+
+                     if(slotList.length) {
+                         sendEmail(mail, slotList);
+                         console.log({slotList});
+                     }
+
+
+                })
+                .catch((error) => console.log(error)) 
+           , 5000);   
 
     });
-})})
+})
+}
+
+// notifyJob.stop();

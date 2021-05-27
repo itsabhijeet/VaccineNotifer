@@ -19,8 +19,13 @@ const transporter = createTransport({
   
   
 
-  export const sendEmail = (email, date) => {
-    Object.assign(mailOptions, { ...mailOptions, to: email, text: `Vaccine available on ${date}`});
+  export const sendEmail = (email, slots) => {
+    let text = "";
+    slots.forEach((slot) => {
+      const { date, name, pincode } = slot;
+      text.concat(`Vaccine available at ${name}, Pincode: ${pincode} on ${date}.<br>`);
+    })
+    Object.assign(mailOptions, { ...mailOptions, to: email, text});
 
     transporter.sendMail(mailOptions, function(error, info){
         if (error) {

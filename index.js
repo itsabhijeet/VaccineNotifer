@@ -22,6 +22,9 @@ mongoose.connect('mongodb://localhost/VNdb', {
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 
+
+setInterval(() => notifyJob, 60000);
+
 routes(app);
 
 app.get('/', (req, res) => {
@@ -29,5 +32,3 @@ app.get('/', (req, res) => {
 });
 
 app.listen(PORT, () => console.log(`Server running on ${PORT}`));
-
-notifyJob;

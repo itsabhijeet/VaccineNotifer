@@ -15,6 +15,10 @@ export const UserSchema = new Schema({
         type: String,
         required: 'Enter email'
     },
+    district: {
+        type: String,
+        required: 'Provide district code'
+    },
     createdDate: {
         type: Date,
         default: Date.now
