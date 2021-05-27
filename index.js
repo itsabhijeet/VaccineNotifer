@@ -23,7 +23,7 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 
 
-setInterval(() => notifyJob, 60000);
+setInterval(notifyJob, 60000);
 
 routes(app);
 
